@@ -28,20 +28,29 @@ data.rename(columns={"release_date" : "release_year", "netflix_date" : "netflix_
 
 ########### Separe Genre ###########
 
-data["genre"][~data["genre"].isna()] = data["genre"][~data["genre"].isna()].map(lambda row : row.split(","))
-#fillna() <- remplacer les cases na
-#print((data["genre"]))
-print(data["genre"][0])
-#print(data["genre"][0].split(","))
-print(len(data["genre"][0]))
-print (max(data["genre"].str.len())) 
-newlist=[]
-for i in range (10):
-    for j in range(len(data["genre"][i])):
-        newlist.append(data["genre"][i][j])
-        #print(np.unique(data["genre"][i][j]))
-print(np.unique(newlist))
-#print(np.unique(data["genre"][0].split(","))[0])
+data_genre_availability= data[["title","release_year","genre"]]
+data_genre_availability["genre"] = data["genre"][~data["genre"].isna()].map(
+    lambda row : row.split(", "))    
+vecteur_genre=[]
+data_genre_without_nan=data["genre"].isna()
+
 ###Retrouver liste d'uniques###
+for i in range (len(data_genre_availability["genre"])):
+    if not(data_genre_without_nan[i]):
+        for j in range(len(data_genre_availability["genre"][i])):
+            vecteur_genre.append(data_genre_availability["genre"][i][j])
+
+vecteur_genre=np.unique(vecteur_genre)
+
 ###Sous table avec column == chaque genre###
-###  For i genre, si dans la ligne genre il y a le genre, alors true sinon false ###
+data_genre_no_Nan=data["genre"]
+data_genre_no_Nan["genre"]=data_genre_no_Nan.fillna('')
+#print(data_genre_no_Nan["genre"])
+#print(data["genre"])
+for genre in vecteur_genre :
+    data_genre_availability[genre] = np.where(data_genre_no_Nan["genre"].str.contains(genre), True, False)
+
+data_genre_availability.drop(["genre"],axis =1,inplace=True)
+print(data_genre_availability["Comedy"][15475])
+print(data_genre_availability)
+
