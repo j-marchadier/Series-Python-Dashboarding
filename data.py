@@ -1,17 +1,20 @@
-from numpy.lib.arraysetops import isin
 import pandas as pd
 import numpy as np
-from pandas.core.frame import DataFrame
-#import kaggle
+import kaggle
 
 pd.options.mode.chained_assignment = None
 
-
+######### Recuperation de la data base #####################
 #https://www.kaggle.com/ashishgup/netflix-rotten-tomatoes-metacritic-imdb
+#kaggle.api.authenticate()
+#kaggle.api.dataset_download_files('ashishgup/netflix-rotten-tomatoes-metacritic-imdb', path='.', unzip=True)
+########################
+
+
 
 ########## Import data ################
 def read_csv():
-    df = pd.read_csv('Web_series_data.csv',
+    df = pd.read_csv('netflix-rotten-tomatoes-metacritic-imdb.csv',
                     skiprows=1,
                     names=["title","genre","tags","languages","series_or_movies","hidden_gem_score",
                                 "country_availability","run_time","director","writer","actors",
@@ -19,16 +22,18 @@ def read_csv():
                                 "awards_received","awards_nominated","box_office","release_date","netflix_date",
                                 "production_house","netflix_link","imdb_link",'summary',"imdb_vote","image",
                                 "poster","tmdb_trailer","trailer_site"],
-                    dtype={"genre": str},
+                    usecols=["title","genre","series_or_movies","hidden_gem_score",
+                                "country_availability","run_time","director","writer","imdb_scrore",
+                                "awards_received","awards_nominated","box_office","release_date","netflix_date",
+                                'summary',"imdb_vote",
+                                "poster"],
+                    dtype={"genre": str, "series_or_movies" : "category"},
                     parse_dates =["release_date","netflix_date"]
     )
     return df
 
 ########## Data cleanning  ###########
-def clean_dataframe(df) :
-    #Delete culunms
-    data = df.drop(["tags","languages","actors","view_rating","rotten_tomatoes_score","metacritic_score","production_house","netflix_link","imdb_link","tmdb_trailer","trailer_site","image"],axis =1)
-
+def clean_dataframe(data) :
     #Drop the $ character
     data["box_office"] = data["box_office"].str.replace("$","", regex=True)
 
@@ -77,11 +82,14 @@ def separe_genre(data) :
     return data_genre_availability
 
 
+
 def main():
     df = read_csv()
-    data = clean_dataframe(df)
+    data = clean_dataframe(df) 
     data_country_availability = separe_country_availability(data)
     data_genre_availability = separe_genre(data)
+    print(data_genre_availability)
+
     
 
 
