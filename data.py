@@ -84,15 +84,21 @@ def separe_genre(data) :
 
     return data_genre_availability
 
-
+########### Merge Dataframes ###########
+def merge_data(*args):
+    dataframes=[]
+    for n in args:
+        dataframes.append(n)
+    return pd.concat(dataframes,axis=1)
 
 def main():
     df = read_csv()
     data = clean_dataframe(df) 
     data_country_availability = separe_country_availability(data)
     data_genre_availability = separe_genre(data)
+    data_final = merge_data(data,data_genre_availability,data_country_availability)
 
-    return data
+    return data_final
 
     
     
