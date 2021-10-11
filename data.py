@@ -1,14 +1,18 @@
 import pandas as pd
 import numpy as np
+import os
+kaggle_data={"username":"julienmarchadier","key":"02de99c2fe1cf5aca1b01c1294e880dd"}
+os.environ['KAGGLE_USERNAME']=kaggle_data["username"]
+os.environ['KAGGLE_KEY']=kaggle_data["key"]
 import kaggle
 
 pd.options.mode.chained_assignment = None
 
 ######### Recuperation de la data base #####################
 #https://www.kaggle.com/ashishgup/netflix-rotten-tomatoes-metacritic-imdb
-kaggle.api.config_file = "."
-kaggle.api.authenticate()
-kaggle.api.dataset_download_files('ashishgup/netflix-rotten-tomatoes-metacritic-imdb', path='.', unzip=True)
+#kaggle.api.dataset_download_files('ashishgup/netflix-rotten-tomatoes-metacritic-imdb', path='.', unzip=True)
+if os.path.exists("netflix-rotten-tomatoes-metacritic-imdb.zip"):
+  os.remove("netflix-rotten-tomatoes-metacritic-imdb.zip")
 ########################
 
 ########## Import data ################
@@ -88,7 +92,8 @@ def main():
     data_country_availability = separe_country_availability(data)
     data_genre_availability = separe_genre(data)
 
+    return data
+
     
     
-if __name__ =="__main__":
-    main()
+
