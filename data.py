@@ -6,11 +6,10 @@ pd.options.mode.chained_assignment = None
 
 ######### Recuperation de la data base #####################
 #https://www.kaggle.com/ashishgup/netflix-rotten-tomatoes-metacritic-imdb
-#kaggle.api.authenticate()
-#kaggle.api.dataset_download_files('ashishgup/netflix-rotten-tomatoes-metacritic-imdb', path='.', unzip=True)
+kaggle.api.config_file = "."
+kaggle.api.authenticate()
+kaggle.api.dataset_download_files('ashishgup/netflix-rotten-tomatoes-metacritic-imdb', path='.', unzip=True)
 ########################
-
-
 
 ########## Import data ################
 def read_csv():
@@ -88,12 +87,8 @@ def main():
     data = clean_dataframe(df) 
     data_country_availability = separe_country_availability(data)
     data_genre_availability = separe_genre(data)
-    print(data_genre_availability)
 
     
-
-
-
     
 if __name__ =="__main__":
     main()
