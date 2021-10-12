@@ -4,28 +4,44 @@ from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
 
-### Data ####
+colors = {
+    'background': '#111111',
+    'text': '#7FDBFF'
+}
+
 
 def backend(data):
+    fig =[0,1]
     #Back end
-    fig = px.scatter(data, x="series_or_movies", y="hidden_gem_score",
+    fig[0] = px.scatter(data, x="series_or_movies", y="hidden_gem_score",
                         color="hidden_gem_score",
                         #size="pop",
                         hover_name="genre") # (4)
     
+
     return fig
 
 def frontend(app,fig):
     #Front end 
-    app.layout = html.Div(children=[
+    app.layout = html.Div([
+        html.Div(
+            style={'width': '49%','height' : '20px', 'display': 'inline-block'},
+            children=[
+                html.H1(
+                    id='title1',
+                    #children=f'Life expectancy vs GDP per capita ({year})',
+                    children=' Series In Time',
+                    style={'textAlign': 'center'}), # (5)
+            ],
+            ),
 
-                            
+            html.Div([
+                dcc.Graph(
+                id='graph2',
+                figure=fig[0]
+            )] ,
+            style={ 'background-color': 'transparent','padding': '10px 5px','width': '49%'})
 
-                            html.H1(
-                                id='title1',
-                                #children=f'Life expectancy vs GDP per capita ({year})',
-                                children=f'OK OK ',
-                                style={'textAlign': 'center', 'color': '#7FDBFF'}), # (5)
                             
                             #html.Button('On/Off', id='button',n_clicks=0),
 
@@ -50,10 +66,6 @@ def frontend(app,fig):
                             #    disabled = True,
                             #),
 
-                            dcc.Graph(
-                                id='graph1',
-                                figure=fig
-                            ), # (6)
 
                             #html.Div(children=f'''
                             #    The graph above shows relationship between life expectancy and
@@ -62,13 +74,9 @@ def frontend(app,fig):
                             #    Mouse over for details.
                             #'''), # (7)
 
-                            html.Label('Year'),
-                            
+    
 
-                            
-
-    ]
-    )
+    ])
 
     return app
 
@@ -100,7 +108,7 @@ def callbacks(app) :
         return years[(n_intervals+1)%len(years)],OK
 
 def main(data) :
-    app = dash.Dash(__name__) # (3)
+    app = dash.Dash(__name__,external_stylesheets =['https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/cyborg/bootstrap.min.css']) # (3)
 
     fig =backend(data)
     app =frontend(app,fig)
