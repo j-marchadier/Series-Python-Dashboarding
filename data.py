@@ -2,18 +2,22 @@ import pandas as pd
 import numpy as np
 import os
 
-kaggle_data = {"username": "julienmarchadier", "key": "02de99c2fe1cf5aca1b01c1294e880dd"}
-os.environ['KAGGLE_USERNAME'] = kaggle_data["username"]
-os.environ['KAGGLE_KEY'] = kaggle_data["key"]
-import kaggle
+from requests import head
 
 pd.options.mode.chained_assignment = None
 
+
 ######### Recuperation de la data base #####################
-# https://www.kaggle.com/ashishgup/netflix-rotten-tomatoes-metacritic-imdb
-# kaggle.api.dataset_download_files('ashishgup/netflix-rotten-tomatoes-metacritic-imdb', path='.', unzip=True)
-if os.path.exists("netflix-rotten-tomatoes-metacritic-imdb.zip"):
-    os.remove("netflix-rotten-tomatoes-metacritic-imdb.zip")
+def download_data_set():
+    print("Download data set : \n")
+    kaggle_data = {"username": "julienmarchadier", "key": "02de99c2fe1cf5aca1b01c1294e880dd"}
+    os.environ['KAGGLE_USERNAME'] = kaggle_data["username"]
+    os.environ['KAGGLE_KEY'] = kaggle_data["key"]
+    import kaggle
+    # https://www.kaggle.com/ashishgup/netflix-rotten-tomatoes-metacritic-imdb
+    # kaggle.api.dataset_download_files('ashishgup/netflix-rotten-tomatoes-metacritic-imdb', path='.', unzip=True)
+    if os.path.exists("netflix-rotten-tomatoes-metacritic-imdb.zip"):
+        os.remove("netflix-rotten-tomatoes-metacritic-imdb.zip")
 
 
 ########################
@@ -36,11 +40,13 @@ def read_csv():
                      dtype={"genre": str, "series_or_movies": "category"},
                      parse_dates=["release_date", "netflix_date"]
                      )
+    print("Read .csv done. \n")
     return df
 
 
 ########## Data cleaning  ###########
 def clean_dataframe(data):
+    print("Clean data set : \n")
     # Drop the $ character
     data["box_office"] = data["box_office"].str.replace("$", "", regex=True)
 
@@ -101,26 +107,31 @@ def merge_data(*args):
     return pd.concat(dataframes, axis=1)
 
 
+def pivot_country_data(data_country_merge):
+    data_country_merge.drop(["country_availability"], axis=1, inplace=True)
+
+    finale_country = data_country_merge.melt(id_vars=['title', 'genre', 'series_or_movies', 'hidden_gem_score',
+                                                      'run_time', 'director', 'writer', 'imdb_score',
+                                                      'awards_received', 'awards_nominated', 'box_office',
+                                                      'release_year',
+                                                      'netflix_year', 'summary', 'imdb_vote', 'poster', 'title',
+                                                      'release_year'],
+                                             value_vars=['Lithuania',
+                                                         'Poland'],
+                                             var_name='country',
+                                             value_name="is_country")
+    return finale_country
+
+
 def main():
+    download_data_set()
     df = read_csv()
     data = clean_dataframe(df)
     data_country_availability = split_country_availability(data)
     data_genre_availability = split_genre(data)
-    data_country_merge = merge_data(data,data_country_availability)
-    data_genre_availability = merge_data(data,data_genre_availability)
-    finale_country = pd.wide_to_long(data_country_merge,["country","is_country"],
-                                     i =['Lithuania', 'Poland', 'France', 'Iceland',
-                                         'Italy', 'Spain', 'Greece', 'Czech Republic', 'Belgium', 'Portugal',
-                                         'Canada', 'Hungary', 'Mexico', 'Slovakia', 'Sweden', 'South Africa',
-                                         'Netherlands', 'Germany', 'Thailand', 'Turkey', 'Singapore', 'Romania',
-                                         'Argentina', 'Israel', 'Switzerland', 'Australia', 'United Kingdom',
-                                         'Brazil', 'Malaysia', 'India', 'Colombia', 'Hong Kong', 'Japan',
-                                         'South Korea', 'United States', 'Russia'],
-                                     j=['title','genre', 'series_or_movies', 'hidden_gem_score',
-                                        'country_availability', 'run_time', 'director', 'writer', 'imdb_score',
-                                        'awards_received', 'awards_nominated', 'box_office', 'release_year',
-                                        'netflix_year', 'summary', 'imdb_vote', 'poster', 'title',
-                                        'release_yar'])
+    data_country_merge = merge_data(data, data_country_availability)
+    data_genre_merge = merge_data(data, data_genre_availability)
+    finale_country = pivot_country_data(data_country_merge)
 
     print(head(finale_country))
-    #return data_final
+    # return data_final
