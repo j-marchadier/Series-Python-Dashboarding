@@ -53,7 +53,7 @@ def clean_dataframe(data):
 
 
 ########### Spare Country_availability ###########
-def separe_country_availability(data):
+def split_country_availability(data):
     # fillna() <- replace les cases na
     # Creation dataset about country
     data_country_availability = data[["title", "release_year", "country_availability"]]
@@ -73,7 +73,7 @@ def separe_country_availability(data):
 
 
 ########### Spare Genre ###########
-def separe_genre(data):
+def split_genre(data):
     # Creation dataset about genre
     data_genre_availability = data[["title", "release_year", "genre"]]
     data_genre_availability["genre"] = data["genre"][~data["genre"].isna()].map(lambda row: row.split(", "))
@@ -104,8 +104,23 @@ def merge_data(*args):
 def main():
     df = read_csv()
     data = clean_dataframe(df)
-    data_country_availability = separe_country_availability(data)
-    data_genre_availability = separe_genre(data)
-    data_final = merge_data(data, data_genre_availability, data_country_availability)
+    data_country_availability = split_country_availability(data)
+    data_genre_availability = split_genre(data)
+    data_country_merge = merge_data(data,data_country_availability)
+    data_genre_availability = merge_data(data,data_genre_availability)
+    finale_country = pd.wide_to_long(data_country_merge,["country","is_country"],
+                                     i =['Lithuania', 'Poland', 'France', 'Iceland',
+                                         'Italy', 'Spain', 'Greece', 'Czech Republic', 'Belgium', 'Portugal',
+                                         'Canada', 'Hungary', 'Mexico', 'Slovakia', 'Sweden', 'South Africa',
+                                         'Netherlands', 'Germany', 'Thailand', 'Turkey', 'Singapore', 'Romania',
+                                         'Argentina', 'Israel', 'Switzerland', 'Australia', 'United Kingdom',
+                                         'Brazil', 'Malaysia', 'India', 'Colombia', 'Hong Kong', 'Japan',
+                                         'South Korea', 'United States', 'Russia'],
+                                     j=['title','genre', 'series_or_movies', 'hidden_gem_score',
+                                        'country_availability', 'run_time', 'director', 'writer', 'imdb_score',
+                                        'awards_received', 'awards_nominated', 'box_office', 'release_year',
+                                        'netflix_year', 'summary', 'imdb_vote', 'poster', 'title',
+                                        'release_yar'])
 
-    return data_final
+    print(head(finale_country))
+    #return data_final
