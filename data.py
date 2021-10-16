@@ -1,7 +1,8 @@
+from typing import final
 import pandas as pd
 import numpy as np
 import os
-
+import json
 from requests import head
 
 pd.options.mode.chained_assignment = None
@@ -9,7 +10,7 @@ pd.options.mode.chained_assignment = None
 
 ######### Recuperation de la data base #####################
 def download_data_set():
-    print("Download data set : \n")
+    print("Downloading data set ...")
     kaggle_data = {"username": "julienmarchadier", "key": "02de99c2fe1cf5aca1b01c1294e880dd"}
     os.environ['KAGGLE_USERNAME'] = kaggle_data["username"]
     os.environ['KAGGLE_KEY'] = kaggle_data["key"]
@@ -18,7 +19,6 @@ def download_data_set():
     # kaggle.api.dataset_download_files('ashishgup/netflix-rotten-tomatoes-metacritic-imdb', path='.', unzip=True)
     if os.path.exists("netflix-rotten-tomatoes-metacritic-imdb.zip"):
         os.remove("netflix-rotten-tomatoes-metacritic-imdb.zip")
-
 
 ########################
 
@@ -40,13 +40,19 @@ def read_csv():
                      dtype={"genre": str, "series_or_movies": "category"},
                      parse_dates=["release_date", "netflix_date"]
                      )
-    print("Read .csv done. \n")
+    print("Read .csv done.")
     return df
+
+def read_country_convertion():
+    with open('country_convertion.txt') as f:
+        country_convertion = f.read()
+    country_convertion = json.loads(country_convertion)
+    return country_convertion
 
 
 ########## Data cleaning  ###########
 def clean_dataframe(data):
-    print("Clean data set : \n")
+    print("Cleaning data set ...")
     # Drop the $ character
     data["box_office"] = data["box_office"].str.replace("$", "", regex=True)
 
@@ -108,7 +114,7 @@ def merge_data(*args):
     return a.loc[:, ~a.columns.duplicated()]
 
 
-def pivot_country_data(data_country_merge):
+def pivot_country_data(data_country_merge,country_convertion):
     data_country_merge.drop(["country_availability"], axis=1, inplace=True)
     # print(data_country_merge.columns)
 
@@ -127,18 +133,31 @@ def pivot_country_data(data_country_merge):
                     'Russia'],
         var_name='country',
         value_name="is_country")
+    finale_country = finale_country[finale_country["is_country"] ==True].reset_index(drop=True)
+    finale_country.drop(["is_country"],axis=1, inplace=True)
+    finale_country.replace("South Korea","Korea, Republic of", inplace= True)
+    finale_country.replace("Russia","Russian Federation", inplace= True)
+    
 
+    finale_country["country_alpha2"] = finale_country["country"].map(lambda row: country_convertion[row])
     return finale_country
 
 
 def main():
     download_data_set()
     df = read_csv()
+    country_convertion =read_country_convertion()
     data = clean_dataframe(df)
     data_country_availability = split_country_availability(data)
     data_genre_availability = split_genre(data)
     data_country_merge = merge_data(data, data_country_availability)
     data_genre_merge = merge_data(data, data_genre_availability)
-    finale_country = pivot_country_data(data_country_merge)
+    finale_country = pivot_country_data(data_country_merge,country_convertion)
+    final_genre = data_genre_merge
 
-    return finale_country
+
+    print("Cleaning done.")
+    return finale_country,final_genre
+
+if __name__ == "__main__":
+    main()

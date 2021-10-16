@@ -11,36 +11,66 @@ colors = {
 
 
 def backend(data):
+    data_country = data[0]
+    data_genre = data[1]
+
+
+
     fig = [0, 1]
     # Back end
-    fig[0] = px.scatter(data, x="series_or_movies", y="hidden_gem_score",
+    fig[0] = px.scatter(data_country, x="series_or_movies", y="hidden_gem_score",
                         color="hidden_gem_score",
                         # size="pop",
                         hover_name="genre")  # (4)
-
+    
+    pd = data_country.groupby(["country"]).mean()
+    pd['country'] = pd.index
+    pd.reset_index(drop=True, inplace = True)
+    fig[1] = px.scatter_geo(pd, locations="country", color="hidden_gem_score",
+                                  #hover_name="country", 
+                                  size="hidden_gem_score",
+                                  locationmode = "country names",
+                                  projection="natural earth")
     return fig
 
 
 def frontend(app, fig):
     # Front end
     app.layout = html.Div([
-        html.Div(
-            style={'width': '49%', 'height': '20px', 'display': 'inline-block'},
-            children=[
-                html.H1(
-                    id='title1',
-                    # children=f'Life expectancy vs GDP per capita ({year})',
-                    children=' Series In Time',
-                    style={'textAlign': 'center'}),  # (5)
+
+        html.H1(
+            id='title1',
+            # children=f'Life expectancy vs GDP per capita ({year})',
+            children= 'Series In Time',
+            style={'textAlign': 'center'}
+        ),  # (5)
+
+
+        dcc.Dropdown(
+            id='series_or_movies_dropdown',
+            options=[
+                {'label': 'Series and Movies', 'value': 'Series and Movies'},
+                {'label': 'Series', 'value': 'Series'},
+                {'label': 'Movies', 'value': 'Movies'}
             ],
+            value='Series and Movies'
         ),
 
-        html.Div([
-            dcc.Graph(
-                id='graph2',
-                figure=fig[0]
-            )],
-            style={'background-color': 'transparent', 'padding': '10px 5px', 'width': '49%'})
+        dcc.Graph(
+            id="map",
+            figure = fig[1]
+        )
+
+
+
+
+
+        #html.Div([
+        #    dcc.Graph(
+        #        id='graph2',
+        #        figure=fig[0]
+        #    )],
+        #    style={'background-color': 'transparent', 'padding': '10px 5px', 'width': '49%'})
 
         # html.Button('On/Off', id='button',n_clicks=0),
 
@@ -78,7 +108,16 @@ def frontend(app, fig):
 
 
 def callbacks(app):
+
     @app.callback(
+        Output(component_id='title1', component_property='children'),
+        [Input(component_id='series_or_movies_dropdown',component_property='value')]
+    )
+    def update_series_or_movies_values(input_value):
+        new_title = "Dashboard of "+str(input_value)+" in time"
+        return new_title
+
+    '''@app.callback(
         Output(component_id='graph1', component_property='figure'),
         Output(component_id='title1', component_property='children'),  # (1)
         [Input(component_id="year-slider", component_property="value")]
@@ -104,21 +143,16 @@ def callbacks(app):
             OK = True
         else:
             OK = False
-        return years[(n_intervals + 1) % len(years)], OK
+        return years[(n_intervals + 1) % len(years)], OK'''
 
 
 def main(data):
-    app = dash.Dash(__name__, external_stylesheets=[
-        'https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/cyborg/bootstrap.min.css'])  # (3)
-
+    app = dash.Dash(__name__)
     fig = backend(data)
     app = frontend(app, fig)
 
-    # callbacks(app)
+    callbacks(app)
 
     # RUN APP
     app.run_server(port=2734, debug=True)  # (8)
 
-
-if __name__ == '__main__':
-    main()
