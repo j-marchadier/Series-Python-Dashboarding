@@ -104,22 +104,30 @@ def merge_data(*args):
     dataframes = []
     for n in args:
         dataframes.append(n)
-    return pd.concat(dataframes, axis=1)
+    a = pd.concat(dataframes, axis=1)
+    return a.loc[:, ~a.columns.duplicated()]
 
 
 def pivot_country_data(data_country_merge):
     data_country_merge.drop(["country_availability"], axis=1, inplace=True)
+    # print(data_country_merge.columns)
 
-    finale_country = data_country_merge.melt(id_vars=['title', 'genre', 'series_or_movies', 'hidden_gem_score',
-                                                      'run_time', 'director', 'writer', 'imdb_score',
-                                                      'awards_received', 'awards_nominated', 'box_office',
-                                                      'release_year',
-                                                      'netflix_year', 'summary', 'imdb_vote', 'poster', 'title',
-                                                      'release_year'],
-                                             value_vars=['Lithuania',
-                                                         'Poland'],
-                                             var_name='country',
-                                             value_name="is_country")
+    finale_country = data_country_merge.melt(
+        id_vars=['title', 'genre', 'series_or_movies', 'hidden_gem_score', 'run_time',
+                 'director', 'writer', 'imdb_score', 'awards_received',
+                 'awards_nominated', 'box_office', 'release_year', 'netflix_year',
+                 'summary', 'imdb_vote', 'poster'],
+        value_vars=['Lithuania', 'Poland', 'France',
+                    'Iceland', 'Italy', 'Spain', 'Greece', 'Czech Republic', 'Belgium',
+                    'Portugal', 'Canada', 'Hungary', 'Mexico', 'Slovakia', 'Sweden',
+                    'South Africa', 'Netherlands', 'Germany', 'Thailand', 'Turkey',
+                    'Singapore', 'Romania', 'Argentina', 'Israel', 'Switzerland',
+                    'Australia', 'United Kingdom', 'Brazil', 'Malaysia', 'India',
+                    'Colombia', 'Hong Kong', 'Japan', 'South Korea', 'United States',
+                    'Russia'],
+        var_name='country',
+        value_name="is_country")
+
     return finale_country
 
 
@@ -133,5 +141,4 @@ def main():
     data_genre_merge = merge_data(data, data_genre_availability)
     finale_country = pivot_country_data(data_country_merge)
 
-    print(head(finale_country))
-    # return data_final
+    return finale_country
