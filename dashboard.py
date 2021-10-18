@@ -1,3 +1,4 @@
+from re import I
 import plotly_express as px
 import dash
 from dash import dcc
@@ -10,11 +11,7 @@ colors = {
 }
 
 
-def backend(data):
-    data_country = data[0]
-    data_genre = data[1]
-
-
+def backend(data_country,data_genre):
 
     fig = [0, 1]
     # Back end
@@ -23,12 +20,10 @@ def backend(data):
                         # size="pop",
                         hover_name="genre")  # (4)
     
-    pd = data_country.groupby(["country"]).mean()
-    pd['country'] = pd.index
-    pd.reset_index(drop=True, inplace = True)
-    fig[1] = px.scatter_geo(pd, locations="country", color="hidden_gem_score",
-                                  #hover_name="country", 
-                                  size="hidden_gem_score",
+    df = data_country[["country","hidden_gem_score","series_or_movies"]].drop_duplicates()
+    fig[1] = px.scatter_geo(df, locations="country", color="hidden_gem_score",
+                                  hover_name="country", 
+                                  #size="hidden_gem_score",
                                   locationmode = "country names",
                                   projection="natural earth")
     return fig
@@ -49,11 +44,11 @@ def frontend(app, fig):
         dcc.Dropdown(
             id='series_or_movies_dropdown',
             options=[
-                {'label': 'Series and Movies', 'value': 'Series and Movies'},
+                {'label': 'Series and Movie', 'value': 'Series and Movie'},
                 {'label': 'Series', 'value': 'Series'},
-                {'label': 'Movies', 'value': 'Movies'}
+                {'label': 'Movie', 'value': 'Movie'}
             ],
-            value='Series and Movies'
+            value='Series and Movie'
         ),
 
         dcc.Graph(
@@ -107,15 +102,29 @@ def frontend(app, fig):
     return app
 
 
-def callbacks(app):
+def callbacks(app,data_country,data_genre):
 
     @app.callback(
         Output(component_id='title1', component_property='children'),
+        Output(component_id='map',component_property='figure'),
         [Input(component_id='series_or_movies_dropdown',component_property='value')]
     )
     def update_series_or_movies_values(input_value):
         new_title = "Dashboard of "+str(input_value)+" in time"
-        return new_title
+
+        if input_value == "Series and Movie" :
+            input_value = 'Series","Movie'
+
+        df = data_country[["country","hidden_gem_score","series_or_movies"]].drop_duplicates()
+        map = px.scatter_geo(df.query('series_or_movies in ["'+str(input_value)+'"]'), locations="country", color="hidden_gem_score",
+                                hover_name="country", 
+                                size="hidden_gem_score",
+                                locationmode = "country names",
+                                projection="natural earth")
+       
+
+
+        return new_title,map
 
     '''@app.callback(
         Output(component_id='graph1', component_property='figure'),
@@ -147,11 +156,14 @@ def callbacks(app):
 
 
 def main(data):
-    app = dash.Dash(__name__)
-    fig = backend(data)
+    data_country = data[0]
+    data_genre = data[1]
+
+    app = dash.Dash(__name__,suppress_callback_exceptions=True)
+    fig = backend(data_country,data_genre)
     app = frontend(app, fig)
 
-    callbacks(app)
+    callbacks(app,data_country,data_genre)
 
     # RUN APP
     app.run_server(port=2734, debug=True)  # (8)

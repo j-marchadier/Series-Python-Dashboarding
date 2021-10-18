@@ -43,11 +43,6 @@ def read_csv():
     print("Read .csv done.")
     return df
 
-def read_country_convertion():
-    with open('country_convertion.txt') as f:
-        country_convertion = f.read()
-    country_convertion = json.loads(country_convertion)
-    return country_convertion
 
 
 ########## Data cleaning  ###########
@@ -114,7 +109,7 @@ def merge_data(*args):
     return a.loc[:, ~a.columns.duplicated()]
 
 
-def pivot_country_data(data_country_merge,country_convertion):
+def pivot_country_data(data_country_merge):
     data_country_merge.drop(["country_availability"], axis=1, inplace=True)
     # print(data_country_merge.columns)
 
@@ -133,26 +128,25 @@ def pivot_country_data(data_country_merge,country_convertion):
                     'Russia'],
         var_name='country',
         value_name="is_country")
+
     finale_country = finale_country[finale_country["is_country"] ==True].reset_index(drop=True)
     finale_country.drop(["is_country"],axis=1, inplace=True)
+
     finale_country.replace("South Korea","Korea, Republic of", inplace= True)
     finale_country.replace("Russia","Russian Federation", inplace= True)
     
-
-    finale_country["country_alpha2"] = finale_country["country"].map(lambda row: country_convertion[row])
     return finale_country
 
 
 def main():
     download_data_set()
     df = read_csv()
-    country_convertion =read_country_convertion()
     data = clean_dataframe(df)
     data_country_availability = split_country_availability(data)
     data_genre_availability = split_genre(data)
     data_country_merge = merge_data(data, data_country_availability)
     data_genre_merge = merge_data(data, data_genre_availability)
-    finale_country = pivot_country_data(data_country_merge,country_convertion)
+    finale_country = pivot_country_data(data_country_merge)
     final_genre = data_genre_merge
 
 
