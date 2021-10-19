@@ -12,16 +12,19 @@ colors = {
 }
 
 
-def backend(data_country,data_genre):
+def backend(data_without_country_genre,data_country,data_genre):
 
-    fig = [0, 1]
+    fig = [0, 1,2]
     # Back end
     fig[0] = px.scatter(data_country, x="series_or_movies", y="hidden_gem_score",
                         color="hidden_gem_score",
                         # size="pop",
                         hover_name="genre")  # (4)
     
-    fig[1] =map(data_country)
+    fig[1] = map(data_country)
+
+    fig[2] = line(data_without_country_genre)
+
     return fig
 
 
@@ -40,16 +43,21 @@ def frontend(app, fig):
         dcc.Dropdown(
             id='series_or_movies_dropdown',
             options=[
-                {'label': 'Series and Movie', 'value': 'Series and Movie'},
+                {'label': 'Series and Movies', 'value': 'Series and Movies'},
                 {'label': 'Series', 'value': 'Series'},
-                {'label': 'Movie', 'value': 'Movie'}
+                {'label': 'Movies', 'value': 'Movies'}
             ],
-            value='Series and Movie'
+            value='Series and Movies'
         ),
 
         dcc.Graph(
             id="map",
             figure = fig[1]
+        ),
+
+        dcc.Graph(
+            id="line",
+            figure = fig[2]
         )
 
 
@@ -98,22 +106,27 @@ def frontend(app, fig):
     return app
 
 
-def callbacks(app,data_country,data_genre):
+def callbacks(app,data_without_country_genre,data_country,data_genre):
 
     @app.callback(
         Output(component_id='title1', component_property='children'),
         Output(component_id='map',component_property='figure'),
+        Output(component_id="line",component_property="figure"),
         [Input(component_id='series_or_movies_dropdown',component_property='value')]
     )
     def update_series_or_movies_values(input_value):
         new_title = "Dashboard of "+str(input_value)+" in time"
 
-        if input_value == "Series and Movie" :
-            input_value = 'Series","Movie'
+        if input_value == "Series and Movies" :
+            input_value = 'Series","Movies'
         
-        df = data_country.query('series_or_movies in ["'+str(input_value)+'"]')
+        df_map = data_country.query('series_or_movies in ["'+str(input_value)+'"]')
 
-        return new_title,map(df)
+        df_line = data_without_country_genre.query('series_or_movies in ["'+str(input_value)+'"]')
+
+
+
+        return new_title,map(df_map),line(df_line)
 
     '''@app.callback(
         Output(component_id='graph1', component_property='figure'),
@@ -146,8 +159,7 @@ def callbacks(app,data_country,data_genre):
 
 def map(data):
     data = data[["country","hidden_gem_score","imdb_vote"]].dropna()
-    data = data.groupby(["country"],as_index =False).mean().apply(lambda x: x) 
-
+    data = data.groupby(["country"],as_index =False).mean()
     map = px.scatter_geo(data,
                         locations="country", 
                         color="hidden_gem_score",
@@ -158,15 +170,33 @@ def map(data):
     
     return map
 
+def line(data):
+    data = data[["release_year","box_office"]].dropna()
+    data["release_year"] = data["release_year"].dropna().astype('int')
+    data = data.groupby(["release_year"],as_index =False).sum()
+    
+    print(data.head())
+    data = data.sort_values(by =["release_year"])
+    
+
+    
+    line = px.line(data,
+            x = "release_year",
+            y = "box_office",
+            title='Life expectancy in Canada')
+    return line
+
+
 def main(data):
-    data_country = data[0]
-    data_genre = data[1]
+    data_without_country_genre = data[0]
+    data_country = data[1]
+    data_genre = data[2]
 
     app = dash.Dash(__name__,suppress_callback_exceptions=True)
-    fig = backend(data_country,data_genre)
+    fig = backend(data_without_country_genre ,data_country,data_genre)
     app = frontend(app, fig)
 
-    callbacks(app,data_country,data_genre)
+    callbacks(app,data_without_country_genre ,data_country,data_genre)
 
     # RUN APP
     app.run_server(port=2734, debug=True)  # (8)

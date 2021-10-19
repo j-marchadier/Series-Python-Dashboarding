@@ -36,7 +36,7 @@ def read_csv():
                               "awards_received", "awards_nominated", "box_office", "release_date", "netflix_date",
                               'summary', "imdb_vote",
                               "poster"],
-                     dtype={"genre": str, "series_or_movies": "category"},
+                     dtype={"genre": str, "series_or_movies": "str"},
                      parse_dates=["release_date", "netflix_date"]
                      )
     print("Read .csv done.")
@@ -49,11 +49,17 @@ def clean_dataframe(data):
     print("Cleaning data set ...")
     # Drop the $ character
     data["box_office"] = data["box_office"].str.replace("$", "", regex=True)
+    data["box_office"] = data["box_office"].str.replace(",", "", regex=True)
+    data["box_office"] = data["box_office"].dropna().astype('int')
 
     # Get only the year value in date
-    data["release_date"] = data["release_date"].dt.year
-    data["netflix_date"] = data["netflix_date"].dt.year
+    data["release_date"] = data["release_date"].dt.year.dropna().astype('int32')
+    data["netflix_date"] = data["netflix_date"].dt.year.dropna().astype('int32')
     data.rename(columns={"release_date": "release_year", "netflix_date": "netflix_year"}, inplace=True)
+    
+    #Modify col
+    data["series_or_movies"] = data["series_or_movies"].str.replace("Movie","Movies",regex=True)
+
 
     return data
 
@@ -145,12 +151,15 @@ def main():
     data_genre_availability = split_genre(data)
     data_country_merge = merge_data(data, data_country_availability)
     data_genre_merge = merge_data(data, data_genre_availability)
-    finale_country = pivot_country_data(data_country_merge)
+
+    #Return data 
+    data.drop(["genre","country_availability"],axis=1, inplace=True)
+    final_country = pivot_country_data(data_country_merge)
     final_genre = data_genre_merge
 
 
     print("Cleaning done.")
-    return finale_country,final_genre
+    return data ,final_country,final_genre
 
 if __name__ == "__main__":
     main()
