@@ -1,9 +1,8 @@
-from typing import final
 import pandas as pd
 import numpy as np
 import os
 import json
-from requests import head
+
 
 pd.options.mode.chained_assignment = None
 
