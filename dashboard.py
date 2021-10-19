@@ -1,6 +1,7 @@
 from re import I
 import plotly_express as px
 import dash
+import pandas as pd
 from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
@@ -20,12 +21,7 @@ def backend(data_country,data_genre):
                         # size="pop",
                         hover_name="genre")  # (4)
     
-    df = data_country[["country","hidden_gem_score","series_or_movies"]].drop_duplicates()
-    fig[1] = px.scatter_geo(df, locations="country", color="hidden_gem_score",
-                                  hover_name="country", 
-                                  #size="hidden_gem_score",
-                                  locationmode = "country names",
-                                  projection="natural earth")
+    fig[1] =map(data_country)
     return fig
 
 
@@ -114,17 +110,10 @@ def callbacks(app,data_country,data_genre):
 
         if input_value == "Series and Movie" :
             input_value = 'Series","Movie'
+        
+        df = data_country.query('series_or_movies in ["'+str(input_value)+'"]')
 
-        df = data_country[["country","hidden_gem_score","series_or_movies"]].drop_duplicates()
-        map = px.scatter_geo(df.query('series_or_movies in ["'+str(input_value)+'"]'), locations="country", color="hidden_gem_score",
-                                hover_name="country", 
-                                size="hidden_gem_score",
-                                locationmode = "country names",
-                                projection="natural earth")
-       
-
-
-        return new_title,map
+        return new_title,map(df)
 
     '''@app.callback(
         Output(component_id='graph1', component_property='figure'),
@@ -154,6 +143,20 @@ def callbacks(app,data_country,data_genre):
             OK = False
         return years[(n_intervals + 1) % len(years)], OK'''
 
+
+def map(data):
+    data = data[["country","hidden_gem_score","imdb_vote"]].dropna()
+    data = data.groupby(["country"],as_index =False).mean().apply(lambda x: x) 
+
+    map = px.scatter_geo(data,
+                        locations="country", 
+                        color="hidden_gem_score",
+                        hover_name="country", 
+                        size="imdb_vote",
+                        locationmode = "country names",
+                        projection="natural earth")
+    
+    return map
 
 def main(data):
     data_country = data[0]
