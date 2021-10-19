@@ -7,7 +7,7 @@
 <br />
 <div align="center">
 
-  <h3 align="center">Best-README-Template</h3>
+  <h3 align="center">Series and Movies Py Dashboarding</h3>
 
 
 </div>
