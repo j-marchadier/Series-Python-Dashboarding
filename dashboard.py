@@ -6,6 +6,8 @@ from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
 
+
+#https://www.w3schools.com/css/css_font_fallbacks.asp
 colors = {
     'background': '#111111',
     'text': '#7FDBFF'
@@ -31,38 +33,65 @@ def backend(data_without_country_genre,data_country,data_genre):
 def frontend(app, fig):
     # Front end
     app.layout = html.Div([
+        #1 row
+        html.Div(children=[
 
-        html.H1(
-            id='title1',
-            # children=f'Life expectancy vs GDP per capita ({year})',
-            children= 'Series In Time',
-            style={'textAlign': 'center'}
-        ),  # (5)
+            html.H1(
+                id='title1',
+                children= 'Series In Time',
+                style={'textAlign': 'center','text-decoration': 'underline','letter-spacing': 
+                        '5px','font-family': 'Tahoma, sans-serif',
+                        'font-size':'3vw'}
+            ),
 
+        ],style={'height': '40px', 'position': 'sticky','position':' -webkit-sticky'},className='row'),
 
-        dcc.Dropdown(
-            id='series_or_movies_dropdown',
-            options=[
-                {'label': 'Series and Movies', 'value': 'Series and Movies'},
-                {'label': 'Series', 'value': 'Series'},
-                {'label': 'Movies', 'value': 'Movies'}
-            ],
-            value='Series and Movies'
-        ),
+        #Second Row
+        html.Div(children=[
+            #2 column of firt row
+            html.Div(children=[
 
-        dcc.Graph(
-            id="map",
-            figure = fig[1]
-        ),
+                dcc.Dropdown(
+                    id='series_or_movies_dropdown',
+                    options=[
+                        {'label': 'Series and Movies', 'value': 'Series and Movies'},
+                        {'label': 'Series', 'value': 'Series'},
+                        {'label': 'Movies', 'value': 'Movies'}
+                    ],
+                    value='Series and Movies'
+                ),
 
-        dcc.Graph(
-            id="line",
-            figure = fig[2]
-        )
+            ],style={'display': 'inline-block', 'width': '15%'}),
 
+            #2 col of first row
+            html.Div(children=[
 
+                dcc.Graph(
+                    id="line",
+                    figure = fig[2],
+                    config={'displayModeBar': False}
+                ),
+            ],style={'display': 'inline-block', 'width': '42%','height': '60%'}),
 
+            #3 col of first row
+            html.Div(children=[
 
+                dcc.Graph(
+                    id="map",
+                    figure = fig[1]
+                )
+            ],style={'display': 'inline-block', 'width': '42%','height': '60%'}),
+
+        ],style={'height': '350px'},className='row'),
+
+        #3 row
+        html.Div(children=[
+            dcc.Graph(
+                id="line2",
+                figure = fig[2]
+            )
+
+        ], className='row'),
 
         #html.Div([
         #    dcc.Graph(
@@ -101,7 +130,7 @@ def frontend(app, fig):
         #    Mouse over for details.
         # '''), # (7)
 
-    ])
+    ],style={'background-color': 'white'})
 
     return app
 
@@ -112,9 +141,11 @@ def callbacks(app,data_without_country_genre,data_country,data_genre):
         Output(component_id='title1', component_property='children'),
         Output(component_id='map',component_property='figure'),
         Output(component_id="line",component_property="figure"),
-        [Input(component_id='series_or_movies_dropdown',component_property='value')]
+        [Input(component_id='series_or_movies_dropdown',component_property='value'),
+        Input(component_id='line',component_property='selectedData')]
     )
-    def update_series_or_movies_values(input_value):
+    def update_series_or_movies_values(input_value,selectedData):
+        print(selectedData)
         new_title = "Dashboard of "+str(input_value)+" in time"
 
         if input_value == "Series and Movies" :
@@ -166,7 +197,9 @@ def map(data):
                         hover_name="country", 
                         size="imdb_vote",
                         locationmode = "country names",
-                        projection="natural earth")
+                        projection="natural earth",)
+
+    map.update_layout({'plot_bgcolor': 'rgba(0, 0, 0, 0)','paper_bgcolor': 'rgba(0, 0, 0, 0)'})
     
     return map
 
@@ -175,7 +208,6 @@ def line(data):
     data["release_year"] = data["release_year"].dropna().astype('int')
     data = data.groupby(["release_year"],as_index =False).sum()
     
-    print(data.head())
     data = data.sort_values(by =["release_year"])
     
 
@@ -184,6 +216,8 @@ def line(data):
             x = "release_year",
             y = "box_office",
             title='Life expectancy in Canada')
+    
+    line.update_layout({'plot_bgcolor': 'rgba(0, 0, 0, 0)','paper_bgcolor': 'rgba(0, 0, 0, 0)'})
     return line
 
 
@@ -194,6 +228,7 @@ def main(data):
 
     app = dash.Dash(__name__,suppress_callback_exceptions=True)
     fig = backend(data_without_country_genre ,data_country,data_genre)
+    
     app = frontend(app, fig)
 
     callbacks(app,data_without_country_genre ,data_country,data_genre)
