@@ -1,8 +1,6 @@
 import pandas as pd
 import numpy as np
 import os
-import json
-
 
 pd.options.mode.chained_assignment = None
 
@@ -13,11 +11,12 @@ def download_data_set():
     kaggle_data = {"username": "julienmarchadier", "key": "02de99c2fe1cf5aca1b01c1294e880dd"}
     os.environ['KAGGLE_USERNAME'] = kaggle_data["username"]
     os.environ['KAGGLE_KEY'] = kaggle_data["key"]
-    import kaggle
+    # import kaggle
     # https://www.kaggle.com/ashishgup/netflix-rotten-tomatoes-metacritic-imdb
     # kaggle.api.dataset_download_files('ashishgup/netflix-rotten-tomatoes-metacritic-imdb', path='.', unzip=True)
     if os.path.exists("netflix-rotten-tomatoes-metacritic-imdb.zip"):
         os.remove("netflix-rotten-tomatoes-metacritic-imdb.zip")
+
 
 ########################
 
@@ -43,7 +42,6 @@ def read_csv():
     return df
 
 
-
 ########## Data cleaning  ###########
 def clean_dataframe(data):
     print("Cleaning data set ...")
@@ -56,17 +54,15 @@ def clean_dataframe(data):
     data["release_date"] = data["release_date"].dt.year.dropna().astype('int32')
     data["netflix_date"] = data["netflix_date"].dt.year.dropna().astype('int32')
     data.rename(columns={"release_date": "release_year", "netflix_date": "netflix_year"}, inplace=True)
-    
-    #Modify col
-    data["series_or_movies"] = data["series_or_movies"].str.replace("Movie","Movies",regex=True)
 
+    # Modify col
+    data["series_or_movies"] = data["series_or_movies"].str.replace("Movie", "Movies", regex=True)
 
     return data
 
 
 ########### Spare Country_availability ###########
 def split_country_availability(data):
-    # fillna() <- replace les cases na
     # Creation dataset about country
     data_country_availability = data[["title", "release_year", "country_availability"]]
     data_country_availability["country_availability"] = data["country_availability"][
@@ -134,12 +130,12 @@ def pivot_country_data(data_country_merge):
         var_name='country',
         value_name="is_country")
 
-    finale_country = finale_country[finale_country["is_country"] ==True].reset_index(drop=True)
-    finale_country.drop(["is_country"],axis=1, inplace=True)
+    finale_country = finale_country[finale_country["is_country"]].reset_index(drop=True)
+    finale_country.drop(["is_country"], axis=1, inplace=True)
 
-    finale_country.replace("South Korea","Korea, Republic of", inplace= True)
-    finale_country.replace("Russia","Russian Federation", inplace= True)
-    
+    finale_country.replace("South Korea", "Korea, Republic of", inplace=True)
+    finale_country.replace("Russia", "Russian Federation", inplace=True)
+
     return finale_country
 
 
@@ -152,14 +148,14 @@ def main():
     data_country_merge = merge_data(data, data_country_availability)
     data_genre_merge = merge_data(data, data_genre_availability)
 
-    #Return data 
-    data.drop(["genre","country_availability"],axis=1, inplace=True)
+    # Return data
+    data.drop(["genre", "country_availability"], axis=1, inplace=True)
     final_country = pivot_country_data(data_country_merge)
     final_genre = data_genre_merge
 
-
     print("Cleaning done.")
-    return data ,final_country,final_genre
+    return data, final_country, final_genre
+
 
 if __name__ == "__main__":
     main()

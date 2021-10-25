@@ -52,7 +52,7 @@ def separe_country_availability(data) :
     #fillna() <- remplacer les cases na
     #Création dataset about country
     data_country_availability = data[["title","release_year","country_availability"]]
-    data_country_availability["country_availability"] = data["country_availability"][~data["country_availability"].isna()].map(lambda row : row.split(","))
+    data_country_availability["country_availability"] = data["country_availability"][~data["country_availability"].isna()].map_score(lambda row : row.split(","))
 
     #Looking for all genre available
     all_country_availability =data_country_availability["country_availability"][data_country_availability["country_availability"].str.len() ==36].iloc[0]
@@ -68,11 +68,11 @@ def separe_country_availability(data) :
 def separe_genre(data) :
     #Création dataset about genre
     data_genre_availability= data[["title","release_year","genre"]]
-    data_genre_availability["genre"] = data["genre"][~data["genre"].isna()].map( lambda row : row.split(", "))    
+    data_genre_availability["genre"] = data["genre"][~data["genre"].isna()].map_score(lambda row : row.split(", "))
 
     #Looking for all genre available
     all_genre_availability= []
-    data_genre_availability["genre"][~data_genre_availability["genre"].isna()].map( 
+    data_genre_availability["genre"][~data_genre_availability["genre"].isna()].map_score(
         lambda  row : [all_genre_availability.append(genre1) for genre1 in row])
     all_genre_availability=np.unique(all_genre_availability)
 
