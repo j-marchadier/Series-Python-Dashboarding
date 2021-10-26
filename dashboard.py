@@ -12,7 +12,7 @@ colors = {
 
 
 def backend(data_without_country_genre, data_country, data_genre):
-    fig = [0, 1, 2, 3]
+    fig = [0, 1, 2, 3, 4]
     # Back end
     fig[0] = px.scatter(data_country, x="series_or_movies", y="hidden_gem_score",
                         color="hidden_gem_score",
@@ -23,7 +23,9 @@ def backend(data_without_country_genre, data_country, data_genre):
 
     fig[2] = line(data_without_country_genre)
 
-    fig[3] = bar(data_without_country_genre)
+    fig[3] = bar(data_genre)
+
+    fig[4] = hist(data_without_country_genre)
 
     return fig
 
@@ -95,8 +97,8 @@ def frontend(app, fig):
             # 3rows 1 col
             html.Div(children=[
                 dcc.Graph(
-                    id="bar2",
-                    figure=fig[3]
+                    id="hist",
+                    figure=fig[4]
                 )
             ], style={'display': 'inline-block', 'width': '42%', 'height': '60%'}),
         ], style={'height': '250px', 'padding': '20px 5px'}, className='row'),
@@ -164,7 +166,7 @@ def callbacks(app, data_without_country_genre, data_country, data_genre):
 
         df_line = df.query('series_or_movies in ["' + str(input_value) + '"]')
 
-        df_bar = df.query('series_or_movies in ["' + str(input_value) + '"]')
+        df_bar = df_genre.query('series_or_movies in ["' + str(input_value) + '"]')
 
         return new_title, map_score(df_map), line(df_line), bar(df_bar)
 
@@ -231,25 +233,41 @@ def line(data):
 
 
 def bar(data):
-    data = data[["awards_received", "run_time", "title", "series_or_movies"]].dropna()
-    data = data.sort_values(by=["awards_received"])
-    bar = px.bar(data,
-                 x="run_time",
-                 y="awards_received",
-                 color="series_or_movies",
-                 title="Number of awards recieve by runing time",
-                 hover_name="title")
-    bar.update_layout(xaxis={'categoryorder':'array', 'categoryarray':['< 30 minutes','30-60 mins','1-2 hour','> 2 hrs']})
+    data = data[["awards_received", "run_time", "title", "genre"]].dropna()
+    data = data.reset_index(drop=True)
+    data["count"] = 0
+    data["count"] = data[["run_time","genre","count"]].groupby(by=["run_time","genre"]).count().reset_index(drop=True)
+
+    bar = px.sunburst(data, names= "genre", parents= "run_time", values='count')
+
+   # starbucks_dist = starbucks_locations.groupby(by=["Country", "State/Province", "City"]).count()[["Store Number"]].rename(columns={"Store Number":"Count"})
+
+   # bar = px.bar(data,
+     #            x="run_time",
+    #             y="awards_received",
+     #            color="genre",
+     #            title="Number of awards recieve by runing time",
+     #            hover_name="title")
+
+    #bar.update_layout(xaxis={'categoryorder': 'array', 'categoryarray': ['< 30 minutes', '30-60 mins', '1-2 hour', '> 2 hrs']})
 
     bar.update_layout({'plot_bgcolor': 'rgba(0, 0, 0, 0)', 'paper_bgcolor': 'rgba(0, 0, 0, 0)'})
 
     return bar
 
 
+def hist(data):
+    data = data[["title", "imdb_vote", "series_or_movies"]].dropna()
+
+    hist = px.histogram(data, "imdb_vote", nbins=30, range_x=[0, 1000000], color="series_or_movies")
+
+    return hist
+
+
 def crossfilter(data_without_country_genre, data_country, data_genre, selectedData):
     if selectedData is not None and selectedData != {'autosize': True}:
         if selectedData == {'xaxis.autorange': True,
-                            'yaxis.autorange': True} : return data_without_country_genre, data_country, data_genre
+                            'yaxis.autorange': True}: return data_without_country_genre, data_country, data_genre
         min_year = str(int(selectedData['xaxis.range[0]']))
         max_year = str(int(selectedData['xaxis.range[1]']))
 
