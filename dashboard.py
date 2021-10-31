@@ -3,6 +3,7 @@ import dash
 from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
+import pandas as pd
 
 # https://www.w3schools.com/css/css_font_fallbacks.asp
 colors = {
@@ -11,21 +12,21 @@ colors = {
 }
 
 
-def backend(data_without_country_genre, data_country, data_genre):
+def backend(data):
     fig = [0, 1, 2, 3, 4]
     # Back end
-    fig[0] = px.scatter(data_country, x="series_or_movies", y="hidden_gem_score",
+    fig[0] = px.scatter(data[1], x="series_or_movies", y="hidden_gem_score",
                         color="hidden_gem_score",
                         # size="pop",
                         hover_name="genre")  # (4)
 
-    fig[1] = map_score(data_country)
+    fig[1] = map_score(data[1])
 
-    fig[2] = line(data_without_country_genre)
+    fig[2] = line(data[0])
 
-    fig[3] = bar(data_genre)
+    fig[3] = pie(data[2])
 
-    fig[4] = hist(data_without_country_genre)
+    fig[4] = hist(data[0])
 
     return fig
 
@@ -51,15 +52,29 @@ def frontend(app, fig):
             # 1 column of 2 row
             html.Div(children=[
 
-                dcc.Dropdown(
-                    id='series_or_movies_dropdown',
-                    options=[
-                        {'label': 'Series and Movies', 'value': 'Series and Movies'},
-                        {'label': 'Series', 'value': 'Series'},
-                        {'label': 'Movies', 'value': 'Movies'}
-                    ],
-                    value='Series and Movies'
-                ),
+                html.Div(children=[
+                    dcc.Dropdown(
+                        id='series_or_movies_dropdown',
+                        options=[
+                            {'label': 'Series and Movies', 'value': 'Series and Movies'},
+                            {'label': 'Series', 'value': 'Series'},
+                            {'label': 'Movies', 'value': 'Movies'}
+                        ],
+                        value='Series and Movies'
+                    ),
+                ]),
+                html.Div(children=[
+                    dcc.Dropdown(
+                        id='Best_score',
+                        options=[
+                            {'label': 'All score', 'value': 0},
+                            {'label': 'Best 30 Score', 'value': 30},
+                            {'label': 'Best 100 Score', 'value': 100},
+                            {'label': 'Worse 100 Score', 'value': -100}
+                        ],
+                        value=0
+                    ),
+                ], style={'padding': '10px 0px'})
 
             ], style={'display': 'inline-block', 'width': '15%'}),
 
@@ -89,10 +104,10 @@ def frontend(app, fig):
             # 3rows 1 col
             html.Div(children=[
                 dcc.Graph(
-                    id="bar",
+                    id="pie",
                     figure=fig[3]
                 )
-            ], style={'display': 'inline-block', 'width': '42%', 'height': '60%'}),
+            ], style={'display': 'inline-block', 'width': '39%', 'height': '60%'}),
 
             # 3rows 1 col
             html.Div(children=[
@@ -100,103 +115,39 @@ def frontend(app, fig):
                     id="hist",
                     figure=fig[4]
                 )
-            ], style={'display': 'inline-block', 'width': '42%', 'height': '60%'}),
+            ], style={'display': 'inline-block', 'width': '60%', 'height': '60%'}),
         ], style={'height': '250px', 'padding': '20px 5px'}, className='row'),
-
-        # html.Div([
-        #    dcc.Graph(
-        #        id='graph2',
-        #        figure=fig[0]
-        #    )],
-        #    style={'background-color': 'transparent', 'padding': '10px 5px', 'width': '49%'})
-
-        # html.Button('On/Off', id='button',n_clicks=0),
-
-        # dcc.Dropdown(
-        #    id="year-dropdown",
-        #    options = [{'label':str(year),'value': year} for year in gapminder["year"].unique()],
-        #    value=2007,
-        # ),
-
-        # dcc.Slider(
-        #    id="year-slider",
-        #    min = 1952,
-        #    max =2007,
-        #    step =5,
-        #    #marks ={year: '{}'.format(year) for year in gapminder["year"].unique()},
-        #    value=2007,
-        # ),
-
-        # dcc.Interval(   id='interval',
-        #    interval=1*300, # in milliseconds
-        #    n_intervals=0,
-        #    disabled = True,
-        # ),
-
-        # html.Div(children=f'''
-        #    The graph above shows relationship between life expectancy and
-        #    GDP per capita for year {year}. Each continent data has its own
-        #    colour and symbol size is proportionnal to country population.
-        #    Mouse over for details.
-        # '''), # (7)
 
     ], style={'background-color': 'white'})
 
     return app
 
 
-def callbacks(app, data_without_country_genre, data_country, data_genre):
+def callbacks(app, data):
     @app.callback(
         Output(component_id='title1', component_property='children'),
         Output(component_id='map', component_property='figure'),
         Output(component_id="line", component_property="figure"),
-        Output(component_id="bar", component_property="figure"),
+        Output(component_id="hist", component_property="figure"),
+        Output(component_id="pie", component_property="figure"),
         [Input(component_id='series_or_movies_dropdown', component_property='value'),
+         Input(component_id='Best_score', component_property='value'),
          Input(component_id='line', component_property='relayoutData')]
     )
-    def update_series_or_movies_values(input_value, selectedData):
-        new_title = "Dashboard of " + str(input_value) + " in time"
+    def update_series_or_movies_values(movieorserie, best_score, selectedData):
+        new_title = "Dashboard of " + str(movieorserie) + " in time"
+        df = data
+        # df[0] == with ou country and genre
+        # df[1] == country
+        # df[2] == genre
 
-        if input_value == "Series and Movies":
-            input_value = 'Series","Movies'
+        df = movies_or_series_f(movieorserie, df)
 
-        df, df_country, df_genre = crossfilter(data_without_country_genre, data_country, data_genre, selectedData)
+        df = best_score_f(best_score, df)
 
-        df_map = df_country.query('series_or_movies in ["' + str(input_value) + '"]')
+        df = crossfilter(selectedData, df)
 
-        df_line = df.query('series_or_movies in ["' + str(input_value) + '"]')
-
-        df_bar = df_genre.query('series_or_movies in ["' + str(input_value) + '"]')
-
-        return new_title, map_score(df_map), line(df_line), bar(df_bar)
-
-    '''@app.callback(
-        Output(component_id='graph1', component_property='figure'),
-        Output(component_id='title1', component_property='children'),  # (1)
-        [Input(component_id="year-slider", component_property="value")]
-        # [Input(component_id='year-dropdown', component_property='value')] # (2)
-    )
-    def update_figure(input_value):  # (3)
-        fig = px.scatter(data[input_value], x="gdpPercap", y="lifeExp",
-                         color="continent",
-                         size="pop",
-                         hover_name="country")  # (4)
-
-        # fig.update_layout(title ='Life expectancy vs GDP per capita ('+str(input_value)+')')
-        title = 'Life expectancy vs GDP per capita (' + str(input_value) + ')'
-        return fig, title
-
-    @app.callback(Output('year-slider', 'value'),
-                  Output('interval', 'disabled'),
-                  [Input('interval', 'n_intervals'), Input('button', 'n_clicks')])
-    def on_tick(n_intervals, n_clicks):
-        OK = True
-        if n_intervals is None: return 0
-        if n_clicks % 2 == 0:
-            OK = True
-        else:
-            OK = False
-        return years[(n_intervals + 1) % len(years)], OK'''
+        return new_title, map_score(df[1]), line(df[0]), hist(df[0]), pie(df[2])
 
 
 def map_score(data):
@@ -222,38 +173,32 @@ def line(data):
 
     data = data.sort_values(by=["release_year"])
 
-    line = px.line(data,
+    line = px.area(data,
                    x="release_year",
                    y="box_office",
-                   title='Life expectancy in Canada')
+                   title='Box office in years')
 
     line.update_layout({'plot_bgcolor': 'rgba(0, 0, 0, 0)', 'paper_bgcolor': 'rgba(0, 0, 0, 0)'})
+
 
     return line
 
 
-def bar(data):
-    data = data[["awards_received", "run_time", "title", "genre"]].dropna()
-    data = data.reset_index(drop=True)
+def pie(data):
+    data = data["genre"].dropna()
+    data = pd.DataFrame(data.reset_index(drop=True))
     data["count"] = 0
-    data["count"] = data[["run_time","genre","count"]].groupby(by=["run_time","genre"]).count().reset_index(drop=True)
+    data = pd.DataFrame(data.groupby(["genre"]).count())
+    data["genre"] = data.index
+    data = pd.DataFrame(data.reset_index(drop=True))
 
-    bar = px.sunburst(data, names= "genre", parents= "run_time", values='count')
+    pie = px.pie(data, names="genre", values='count', hole = 0.5)
 
-   # starbucks_dist = starbucks_locations.groupby(by=["Country", "State/Province", "City"]).count()[["Store Number"]].rename(columns={"Store Number":"Count"})
+    pie.update_traces(textposition='inside')
 
-   # bar = px.bar(data,
-     #            x="run_time",
-    #             y="awards_received",
-     #            color="genre",
-     #            title="Number of awards recieve by runing time",
-     #            hover_name="title")
+    pie.update_layout({'plot_bgcolor': 'rgba(0, 0, 0, 0)', 'paper_bgcolor': 'rgba(0, 0, 0, 0)'})
 
-    #bar.update_layout(xaxis={'categoryorder': 'array', 'categoryarray': ['< 30 minutes', '30-60 mins', '1-2 hour', '> 2 hrs']})
-
-    bar.update_layout({'plot_bgcolor': 'rgba(0, 0, 0, 0)', 'paper_bgcolor': 'rgba(0, 0, 0, 0)'})
-
-    return bar
+    return pie
 
 
 def hist(data):
@@ -264,33 +209,57 @@ def hist(data):
     return hist
 
 
-def crossfilter(data_without_country_genre, data_country, data_genre, selectedData):
+def crossfilter(selectedData, df):
     if selectedData is not None and selectedData != {'autosize': True}:
         if selectedData == {'xaxis.autorange': True,
-                            'yaxis.autorange': True}: return data_without_country_genre, data_country, data_genre
+                            'yaxis.autorange': True}: return df
         min_year = str(int(selectedData['xaxis.range[0]']))
         max_year = str(int(selectedData['xaxis.range[1]']))
 
-        df_country = data_country.query("release_year > " + min_year + " and release_year < " + max_year)
-        df_genre = data_genre.query("release_year >" + min_year + " and release_year <" + max_year)
-        df = data_without_country_genre.query("release_year >" + min_year + " and release_year <" + max_year)
+        df[1].query("release_year > " + min_year + " and release_year < " + max_year, inplace=True)
+        df[2].query("release_year >" + min_year + " and release_year <" + max_year, inplace=True)
+        df[0].query("release_year >" + min_year + " and release_year <" + max_year, inplace=True)
         print(min_year, max_year)
 
-        return df, df_country, df_genre
-    return data_without_country_genre, data_country, data_genre
+        return df
+    return df
+
+
+def movies_or_series_f(movieorserie, df):
+    df_bis = [0, 1, 2]
+    for i in range(3):
+        if movieorserie == "Series and Movies":
+            df_bis[i] = df[i].query('series_or_movies == "Series" or series_or_movies == "Movies"')
+        else:
+            df_bis[i] = df[i].query(f'series_or_movies ==  "{str(movieorserie)}" ')
+
+    df = df_bis
+    return df
+
+
+def best_score_f(best_score, df):
+    y = 0
+    if best_score == 0 : return df
+
+    if best_score > 0:
+        df[0] = df[0].sort_values(['imdb_score'], ascending=False).head(best_score)
+        df[1] = df[1].sort_values(['imdb_score'], ascending=False).head(best_score)
+        df[2] = df[2].sort_values(['imdb_score'], ascending=False).head(best_score)
+    else:
+        df[0] = df[0].sort_values(['imdb_score'], ascending=True).head(-best_score)
+        df[1] = df[1].sort_values(['imdb_score'], ascending=True).head(-best_score)
+        df[2] = df[2].sort_values(['imdb_score'], ascending=True).head(-best_score)
+
+    return df
 
 
 def main(data):
-    data_without_country_genre = data[0]
-    data_country = data[1]
-    data_genre = data[2]
-
     app = dash.Dash(__name__, suppress_callback_exceptions=True)
-    fig = backend(data_without_country_genre, data_country, data_genre)
+    fig = backend(data)
 
     app = frontend(app, fig)
 
-    callbacks(app, data_without_country_genre, data_country, data_genre)
+    callbacks(app, data)
 
     # RUN APP
     app.run_server(port=2734, debug=True)  # (8)

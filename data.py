@@ -139,6 +139,28 @@ def pivot_country_data(data_country_merge):
     return finale_country
 
 
+def pivot_genre_data(data_genre_merge):
+    data_genre_merge.drop(["genre"], axis=1, inplace=True)
+    # print(data_country_merge.columns)
+
+    finale_genre = data_genre_merge.melt(
+        id_vars=['title', 'country_availability', 'series_or_movies', 'hidden_gem_score', 'run_time',
+                 'director', 'writer', 'imdb_score', 'awards_received',
+                 'awards_nominated', 'box_office', 'release_year', 'netflix_year',
+                 'summary', 'imdb_vote', 'poster'],
+        value_vars=['Action', 'Adult', 'Adventure', 'Animation', 'Biography', 'Comedy', 'Crime',
+                    'Documentary', 'Drama', 'Family', 'Fantasy', 'Film-Noir', 'Game-Show',
+                    'History', 'Horror', 'Music', 'Musical', 'Mystery', 'News', 'Reality-TV',
+                    'Romance', 'Sci-Fi', 'Short', 'Sport', 'Talk-Show', 'Thriller', 'War', 'Western'],
+        var_name='genre',
+        value_name="is_genre")
+
+    finale_genre = finale_genre[finale_genre["is_genre"]].reset_index(drop=True)
+    finale_genre.drop(["is_genre"], axis=1, inplace=True)
+
+    return finale_genre
+
+
 def main():
     download_data_set()
     df = read_csv()
@@ -151,7 +173,7 @@ def main():
     # Return data
     data.drop(["genre", "country_availability"], axis=1, inplace=True)
     final_country = pivot_country_data(data_country_merge)
-    final_genre = data_genre_merge
+    final_genre = pivot_genre_data(data_genre_merge)
 
     print("Cleaning done.")
     return data, final_country, final_genre
