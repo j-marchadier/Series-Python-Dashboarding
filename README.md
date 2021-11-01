@@ -44,32 +44,30 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This projet is a projet of our 2 year of ingenering study. It take place in september and october and consite to create a Dashbaord with a map and a barplot. 
+This project is a project of our 2 year of engineering study. It take place in september and october and onsite to create a Dashboard with a map and a bar plot. 
+The Dataset is present on kaggle : 
+www.kaggle.com/ashishgup/netflix-rotten-tomatoes-metacritic-imdb.
 
-Here's why:
-* Your time should be focused on creating something amazing. A project that solves a problem and helps others
-* You shouldn't be doing the same tasks over and over like creating a README from scratch
-* You should implement DRY principles to the rest of your life :smile:
+This dataset combines data sources from Netflix, Rotten Tomatoes, IMBD, posters, box office information, 
+trailers on YouTube, and more using a variety of APIs. 
+Note that there is no official Netflix API.
 
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have contributed to expanding this template!
+"Hidden Gem Score" is calculated using low review count and high rating. Lower the review count and higher the user rating, higher the hidden gem score.
 
 Use the `README.md` to get started.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 ### Built With
 
-This project writed in pyhton 3.8. It use a list of library to bootrap it.
+This project writed in pyhton 3.8.5 It use a list of library to bootrap it.
 
 * [Pandas.py](https://pandas.pydata.org)
 * [Numpy.py](https://numpy.org)
 * [Plotly-express.py](https://plotly.com/python/plotly-express/)
 * [Dash.py](https://dash.plotly.com)
 * [Os.py](https://docs.python.org/fr/3/library/os.html)
-
-This section should list any major frameworks/libraries used to bootstrap your project. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
+* [Kaggle.py](https://github.com/Kaggle/kaggle-api)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -78,19 +76,32 @@ This section should list any major frameworks/libraries used to bootstrap your p
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+To get the projet, you need to clone it with the following command 
+
+* Clone git repository
+  ```sh
+  git clone https://github.com/juju312000/Series_Py_Dashboarding.git
+  ```
+
+https://github.com/juju312000/Series_Py_Dashboarding.git 
+
+This repository is storage on github.
+To get a local copy, run follow this simple step.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
+You need to install packages to run project.
+The simpler way is to run the following code.
 
-* Pip
+* Install prerequisites
   ```sh
-  pip install --upgrade pip
+  python -m pip install -r requirements.txt
   ```
 
+
 ### Installation
+
+But if you want to install separately you can install one by one like follow.
 
 1. Pandas
   ```sh
@@ -107,6 +118,10 @@ This is an example of how to list things you need to use the software and how to
 4. Plotly
   ```sh
   pip install plotly
+  ```
+5. Kaggle
+  ```sh
+  pip install kaggle
   ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
