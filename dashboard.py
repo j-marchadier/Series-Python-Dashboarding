@@ -13,20 +13,15 @@ colors = {
 
 
 def backend(data):
-    fig = [0, 1, 2, 3, 4]
-    # Back end
-    fig[0] = px.scatter(data[1], x="series_or_movies", y="hidden_gem_score",
-                        color="hidden_gem_score",
-                        # size="pop",
-                        hover_name="genre")  # (4)
+    fig = [0, 1, 2, 3]
 
-    fig[1] = map_score(data[1])
+    fig[0] = map_score(data[1])
 
-    fig[2] = line(data[0])
+    fig[1] = line(data[0])
 
-    fig[3] = pie(data[2])
+    fig[2] = pie(data[2])
 
-    fig[4] = hist(data[0])
+    fig[3] = hist(data[0])
 
     return fig
 
@@ -82,7 +77,7 @@ def frontend(app, fig):
             html.Div(children=[
                 dcc.Graph(
                     id="line",
-                    figure=fig[2],
+                    figure=fig[1],
                     # config={'displayModeBar': False, 'editable':True}
                 ),
             ], style={'display': 'inline-block', 'width': '42%', 'height': '60%'}),
@@ -92,7 +87,7 @@ def frontend(app, fig):
 
                 dcc.Graph(
                     id="map",
-                    figure=fig[1]
+                    figure=fig[0]
                 )
             ], style={'display': 'inline-block', 'width': '42%', 'height': '60%'}),
 
@@ -105,7 +100,7 @@ def frontend(app, fig):
             html.Div(children=[
                 dcc.Graph(
                     id="pie",
-                    figure=fig[3]
+                    figure=fig[2]
                 )
             ], style={'display': 'inline-block', 'width': '39%', 'height': '60%'}),
 
@@ -113,7 +108,7 @@ def frontend(app, fig):
             html.Div(children=[
                 dcc.Graph(
                     id="hist",
-                    figure=fig[4]
+                    figure=fig[3]
                 )
             ], style={'display': 'inline-block', 'width': '60%', 'height': '60%'}),
         ], style={'height': '250px', 'padding': '20px 5px'}, className='row'),

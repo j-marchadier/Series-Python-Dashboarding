@@ -165,12 +165,32 @@ We delete rows which are False in pivot column : "country_availability" or "genr
 
 Our dataset is ready to be plot.
 
-Example :`
+Example :
 
 ![img.png](data/img.png)
 
 
 ### Dashboard
+
+In Dashboard, there are 2 main parts too :
+
+* Frontend
+* Backend
+
+Frontend deals with the display.
+
+#### Frontend 
+
+
+
+#### Backend
+
+In backend we put what type of figures we want to show and whit what data. 
+Each functions show one time of graphics, for exemple :
+* [line()](dashboard.py) show a line graph 
+* [map_score()](dashboard.py) show a map of the world with score as colors
+* [hist()]() show an histogram
+* [pie()]() show an pie graph 
 
 
 
