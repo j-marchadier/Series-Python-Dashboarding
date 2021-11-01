@@ -30,7 +30,12 @@
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#developer_guide">Developer_Guide</a></li>
+    <li>
+      <a href="#developer_guide">Developer_Guide</a></li>
+      <ul>
+        <li><a href="#data_cleaning">Data_Cleaning</a></li>
+        <li><a href="#dashboard">Dashboard</a></li>
+      </ul>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
@@ -136,7 +141,6 @@ This project is divided in 2 parts :
 * Data cleaning 
 * Dashboard
 
-<!-- Data Cleaning -->
 ###Data Cleaning 
 
 In "data.py" file we first download dataset.
