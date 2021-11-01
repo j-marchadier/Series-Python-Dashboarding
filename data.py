@@ -175,6 +175,8 @@ def main():
     final_country = pivot_country_data(data_country_merge)
     final_genre = pivot_genre_data(data_genre_merge)
 
+    print(final_country)
+
     print("Cleaning done.")
     return data, final_country, final_genre
 

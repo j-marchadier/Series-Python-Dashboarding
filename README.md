@@ -128,19 +128,49 @@ But if you want to install separately you can install one by one like follow.
 
 
 
-<!-- USAGE EXAMPLES -->
-## Usage
+<!-- Developer Guide -->
+## Developer Guide
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+This project is divided in 2 parts :
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+* Data cleaning 
+* Dashboard
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+###Data Cleaning 
+
+In "data.py" file we first download dataset.
+```sh
+  kaggle.api.dataset_download_files('ashishgup/netflix-rotten-tomatoes-metacritic-imdb', path='.', unzip=True)
+  ```
+When it's done, we read the .csv and select columns we want.
+We process the data so that it is suitable for conversion or selection.
+[clean_dataframe()](data.py) function make it.
+
+In the original dataset in the column "country_availability", countries are present and split by comma.
+In the function [split_country_availability](data.py) we create as much columns as countries and we put [True]() or [False]() 
+if the country is in or not.
+
+We make the same with genre is the function [split_genre_availability](data.py).
+
+We have so 2 dataframes with a lot of columns. We will pivot them with functions [pivot_country_data](data.py) and [pivot_genre_data](data.py)
+That returns a dataframe with (number of original rows) * number of country or genre.
+
+We delete rows which are False in pivot column : "country_availability" or "genre_availability"
+
+Our dataset is ready to be plot.
+
+Example :
+![img.png](img.png)
+
+###Dashboard
 
 
+
+![](example.png)
 
 <!-- ROADMAP -->
 ## Roadmap
+[example](example.png?raw=true)
 
 - [x] Add Changelog
 - [x] Add back to top links
@@ -224,4 +254,4 @@ Use this space to list resources you find helpful and would like to give credit 
 [license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/jmarchadier
-[product-screenshot]: images/screenshot.png
+[exemple]: example.png
