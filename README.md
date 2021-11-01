@@ -141,7 +141,8 @@ This project is divided in 2 parts :
 * Data cleaning 
 * Dashboard
 
-###Data Cleaning 
+
+### Data Cleaning 
 
 In "data.py" file we first download dataset.
 ```sh
@@ -168,7 +169,8 @@ Example :`
 
 ![img.png](data/img.png)
 
-###Dashboard
+
+### Dashboard
 
 
 
