@@ -1,0 +1,6 @@
+plotly_express
+pandas
+plotly
+dash
+numpy
+kaggle
