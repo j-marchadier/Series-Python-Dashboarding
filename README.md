@@ -30,7 +30,7 @@
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
+    <li><a href="#developer_guide">Developer_Guide</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
@@ -128,14 +128,15 @@ But if you want to install separately you can install one by one like follow.
 
 
 
-<!-- Developer Guide -->
-## Developer Guide
+<!-- Developer_Guide -->
+## Developer_Guide
 
 This project is divided in 2 parts :
 
 * Data cleaning 
 * Dashboard
 
+<!-- Data Cleaning -->
 ###Data Cleaning 
 
 In "data.py" file we first download dataset.
@@ -159,18 +160,19 @@ We delete rows which are False in pivot column : "country_availability" or "genr
 
 Our dataset is ready to be plot.
 
-Example :
-![img.png](img.png)
+Example :`
+
+![img.png](data/img.png)
 
 ###Dashboard
 
 
 
-![](example.png)
+![](data/example.png)
 
 <!-- ROADMAP -->
 ## Roadmap
-[example](example.png?raw=true)
+[example](data/example.png?raw=true)
 
 - [x] Add Changelog
 - [x] Add back to top links
@@ -254,4 +256,4 @@ Use this space to list resources you find helpful and would like to give credit 
 [license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/jmarchadier
-[exemple]: example.png
+[exemple]: data/example.png

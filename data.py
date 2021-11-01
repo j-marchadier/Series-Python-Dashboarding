@@ -11,18 +11,18 @@ def download_data_set():
     kaggle_data = {"username": "julienmarchadier", "key": "02de99c2fe1cf5aca1b01c1294e880dd"}
     os.environ['KAGGLE_USERNAME'] = kaggle_data["username"]
     os.environ['KAGGLE_KEY'] = kaggle_data["key"]
-    #import kaggle
+    import kaggle
     # https://www.kaggle.com/ashishgup/netflix-rotten-tomatoes-metacritic-imdb
-    #kaggle.api.dataset_download_files('ashishgup/netflix-rotten-tomatoes-metacritic-imdb', path='.', unzip=True)
-    if os.path.exists("netflix-rotten-tomatoes-metacritic-imdb.zip"):
-        os.remove("netflix-rotten-tomatoes-metacritic-imdb.zip")
+    kaggle.api.dataset_download_files('ashishgup/netflix-rotten-tomatoes-metacritic-imdb', path='./data/', unzip=True)
+    if os.path.exists("data/netflix-rotten-tomatoes-metacritic-imdb.zip"):
+        os.remove("data/netflix-rotten-tomatoes-metacritic-imdb.zip")
 
 
 ########################
 
 ########## Import data ################
 def read_csv():
-    df = pd.read_csv('netflix-rotten-tomatoes-metacritic-imdb.csv',
+    df = pd.read_csv('data/netflix-rotten-tomatoes-metacritic-imdb.csv',
                      skiprows=1,
                      names=["title", "genre", "tags", "languages", "series_or_movies", "hidden_gem_score",
                             "country_availability", "run_time", "director", "writer", "actors",
@@ -174,8 +174,6 @@ def main():
     data.drop(["genre", "country_availability"], axis=1, inplace=True)
     final_country = pivot_country_data(data_country_merge)
     final_genre = pivot_genre_data(data_genre_merge)
-
-    print(final_country)
 
     print("Cleaning done.")
     return data, final_country, final_genre
