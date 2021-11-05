@@ -5,13 +5,6 @@ from dash import html
 from dash.dependencies import Input, Output
 import pandas as pd
 
-# https://www.w3schools.com/css/css_font_fallbacks.asp
-colors = {
-    'background': '#111111',
-    'text': '#7FDBFF'
-}
-
-
 def backend(data):
     fig = [0, 1, 2, 3]
 
@@ -69,6 +62,32 @@ def frontend(app, fig):
                         ],
                         value=0
                     ),
+                ], style={'padding': '10px 0px'}),
+
+                html.H1(
+                    id='title_watch_time',
+                    children='Watch time',
+                    style={'textAlign': 'center','font-family': 'Tahoma, sans-serif','font-size': '20px'}
+                ),
+
+                html.Div(children=[
+                    dcc.Checklist(
+                        id='watch_time_all',
+                        options=[
+                            {'label': 'All', 'value': 'All'},
+                        ],
+                        value=['All']
+                    ),
+                    dcc.Checklist(
+                        id='watch_time',
+                        options=[
+                            {'label': '< 30 minutes', 'value': '< 30 minutes'},
+                            {'label': '30-60 mins', 'value': '30-60 mins'},
+                            {'label': '1-2 hour', 'value': '1-2 hour'},
+                            {'label': '> 2 hrs', 'value': '> 2 hrs'},
+                        ],
+                        value=['< 30 minutes','30-60 mins','1-2 hour','> 2 hrs']
+                    )
                 ], style={'padding': '10px 0px'})
 
             ], style={'display': 'inline-block', 'width': '15%'}),
@@ -125,11 +144,15 @@ def callbacks(app, data):
         Output(component_id="line", component_property="figure"),
         Output(component_id="hist", component_property="figure"),
         Output(component_id="pie", component_property="figure"),
+        Output(component_id='watch_time_all',component_property='value'),
+        Output(component_id='watch_time',component_property='value'),
         [Input(component_id='series_or_movies_dropdown', component_property='value'),
          Input(component_id='Best_score', component_property='value'),
-         Input(component_id='line', component_property='relayoutData')]
+         Input(component_id='line', component_property='relayoutData'),
+         Input(component_id='watch_time_all',component_property='value'),
+         Input(component_id='watch_time',component_property='value')]
     )
-    def update_series_or_movies_values(movieorserie, best_score, selectedData):
+    def update_series_or_movies_values(movieorserie, best_score, selectedData,watch_time_all,watch_time):
         new_title = "Dashboard of " + str(movieorserie) + " in time"
         df = data
         # df[0] == with ou country and genre
@@ -140,10 +163,11 @@ def callbacks(app, data):
 
         df = best_score_f(best_score, df)
 
+        df,watch_time_all,watch_time = watch_time_f(watch_time_all,watch_time,df)
+
         df = crossfilter(selectedData, df)
 
-        return new_title, map_score(df[1]), line(df[0]), hist(df[0]), pie(df[2])
-
+        return new_title, map_score(df[1]), line(df[0]), hist(df[0]), pie(df[2]),watch_time_all,watch_time
 
 def map_score(data):
     data = data[["country", "hidden_gem_score", "imdb_vote"]].dropna()
@@ -224,9 +248,9 @@ def movies_or_series_f(movieorserie, df):
     df_bis = [0, 1, 2]
     for i in range(3):
         if movieorserie == "Series and Movies":
-            df_bis[i] = df[i].query('series_or_movies == "Series" or series_or_movies == "Movies"')
+            df_bis[i] = df[i].query('series_or_movies == "Series" or series_or_movies == "Movies"').reset_index()
         else:
-            df_bis[i] = df[i].query(f'series_or_movies ==  "{str(movieorserie)}" ')
+            df_bis[i] = df[i].query(f'series_or_movies ==  "{str(movieorserie)}" ').reset_index()
 
     df = df_bis
     return df
@@ -237,16 +261,36 @@ def best_score_f(best_score, df):
     if best_score == 0 : return df
 
     if best_score > 0:
-        df[0] = df[0].sort_values(['imdb_score'], ascending=False).head(best_score)
-        df[1] = df[1].sort_values(['imdb_score'], ascending=False).head(best_score)
-        df[2] = df[2].sort_values(['imdb_score'], ascending=False).head(best_score)
+        df[0] = df[0].sort_values(['imdb_score'], ascending=False).head(best_score).reset_index()
+        df[1] = df[1].sort_values(['imdb_score'], ascending=False).head(best_score).reset_index()
+        df[2] = df[2].sort_values(['imdb_score'], ascending=False).head(best_score).reset_index()
     else:
-        df[0] = df[0].sort_values(['imdb_score'], ascending=True).head(-best_score)
-        df[1] = df[1].sort_values(['imdb_score'], ascending=True).head(-best_score)
-        df[2] = df[2].sort_values(['imdb_score'], ascending=True).head(-best_score)
+        df[0] = df[0].sort_values(['imdb_score'], ascending=True).head(-best_score).reset_index()
+        df[1] = df[1].sort_values(['imdb_score'], ascending=True).head(-best_score).reset_index()
+        df[2] = df[2].sort_values(['imdb_score'], ascending=True).head(-best_score).reset_index()
 
     return df
 
+def watch_time_f(watch_time_all,watch_time,df):
+    options=[
+        {'label': '< 30 minutes', 'value': '< 30 minutes'},
+        {'label': '30-60 mins', 'value': '30-60 mins'},
+        {'label': '1-2 hour', 'value': '1-2 hour'},
+        {'label': '> 2 hrs', 'value': '> 2 hrs'},
+    ]
+    all_wt = [option["value"] for option in options]
+    ctx = dash.callback_context
+    input_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    if input_id == "watch_time" :
+        watch_time_all =["All"] if set(watch_time) == set(all_wt) else []
+    else :
+        watch_time = all_wt if watch_time_all else []
+
+    df[0] = df[0].query(f"run_time in {watch_time}")
+    df[1] = df[1].query(f"run_time in {watch_time}")
+    df[2] = df[2].query(f"run_time in {watch_time}")
+
+    return df,watch_time_all,watch_time
 
 def main(data):
     app = dash.Dash(__name__, suppress_callback_exceptions=True)
