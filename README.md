@@ -1,7 +1,7 @@
 <div id="top"></div>
 
-[![LinkedIn][linkedin-shield]][linkedin-url]
-[![Contributors][contributors-shield]][contributors-url]
+[![LinkedIn_juju][linkedin-shield]](https://linkedin.com/in/jmarchadier)
+[![Contributors][contributors-shield]](https://github.com/juju312000/Series_Py_Dashboarding/graphs/contributors)
 
 
 <!-- PROJECT LOGO -->
@@ -28,19 +28,22 @@
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
+        <li><a href="#run project">Run project</a></li>
       </ul>
     </li>
     <li>
       <a href="#developer_guide">Developer_Guide</a></li>
       <ul>
         <li><a href="#data_cleaning">Data_Cleaning</a></li>
-        <li><a href="#dashboard">Dashboard</a></li>
+        <li>
+          <a href="#dashboard">Dashboard</a>
+            <ul>
+              <li><a href="#frontend">Frontend</a></li>
+              <li><a href="#backend">Backend</a></li>
+            </ul>
+        </li>
       </ul>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
@@ -49,7 +52,9 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This project is a project of our 2 year of engineering study. It take place in september and october and onsite to create a Dashboard with a map and a bar plot. 
+This is is a project of our second year of engineering study. 
+It took place in september and october.
+The goal is to create a interactive Dashboard with a map and a histogram. 
 The Dataset is present on kaggle : 
 www.kaggle.com/ashishgup/netflix-rotten-tomatoes-metacritic-imdb.
 
@@ -65,7 +70,7 @@ Use the `README.md` to get started.
 
 ### Built With
 
-This project writed in pyhton 3.8.5 It use a list of library to bootrap it.
+This project written in python 3.8.5 It uses a list of library to bootstrap it.
 
 * [Pandas.py](https://pandas.pydata.org)
 * [Numpy.py](https://numpy.org)
@@ -81,7 +86,7 @@ This project writed in pyhton 3.8.5 It use a list of library to bootrap it.
 <!-- GETTING STARTED -->
 ## Getting Started
 
-To get the projet, you need to clone it with the following command 
+To get the project, you need to clone it with the following command 
 
 * Clone git repository
   ```sh
@@ -127,6 +132,13 @@ But if you want to install separately you can install one by one like follow.
 5. Kaggle
   ```sh
   pip install kaggle
+  ```
+
+
+### Run project
+If no error appear, you can run the project by execute the command follow : 
+ ```sh
+  python main.py
   ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -178,108 +190,83 @@ In Dashboard, there are 2 main parts too :
 * Backend
 
 Frontend deals with the display.
+Backend is all aspects that users don't see but participate to create the dashboard.
 
 #### Frontend 
 
+Frontend print what we see and that start by create layout to divide the display.
+We divide the screen in 3 rows of 10, 45 and 45 % of the maximum height. 
+In each row we divide again if we need it.
+
+We use HTML code to make it :
+```sh
+  html.Div(children=[ .... ])
+  ```
+In divided screen we decide what type of information we want to show : graphics, labels, images, filters ...
+
+In the dashboard we a Title center in the top.
+```sh
+  html.H1(
+                id='title1',
+                children='Series In Time',
+                style={'textAlign': 'center', 'text-decoration': 'underline', 'letter-spacing': '5px',
+                       'font-family': 'Tahoma, sans-serif',
+                       'font-size': '3vw'}
+            ),
+  ```
+In the middle row we have 2 [dropdowns](dashboard.py) and 1 [checklist](dashboard.py) on the left, 
+a [graph line](dashboard.py) on the center, and a [map](dashboard.py) on the right.
+
+```sh
+  dcc.Dropdown(
+             id='series_or_movies_dropdown',
+             options=[ { ... }],
+             value='Series and Movies'
+             ),
+  ....
+  ```
+
+On the last row we have a [pie](dashboard.py) on the left and a [histogram](dashboard.py) on the right.
+
+```sh
+  dcc.Graph(
+    id="map",
+    figure=fig[0]
+  )
+  ....
+  ```
 
 
+So we obtain a screen split in 6 displays like this :
+
+![](data/db_layouts.png)
 #### Backend
 
-In backend we put what type of figures we want to show and whit what data. 
-Each functions show one time of graphics, for exemple :
+In backend we work on what type of figures we want to build and with what data. 
+Each functions show one time of graphics, for example :
 * [line()](dashboard.py) show a line graph 
 * [map_score()](dashboard.py) show a map of the world with score as colors
-* [hist()]() show an histogram
-* [pie()]() show an pie graph 
+* [hist()](dashboard.py) show an histogram
+* [pie()](dashboard.py) show an pie graph
 
+Callback function allow dashboard to be interactive. 
+We place in Input all filter and also possible cross filtering.
+In Output there are all features who need to be modify : graphs, title...
 
-
-![](data/example.png)
-
-<!-- ROADMAP -->
-## Roadmap
-[example](data/example.png?raw=true)
-
-- [x] Add Changelog
-- [x] Add back to top links
-- [] Add Additional Templates w/ Examples
-- [] Add "components" document to easily copy & paste sections of the readme
-- [] Multi-language Support
-    - [] Chinese
-    - [] Spanish
-
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a full list of proposed features (and known issues).
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
-<!-- CONTRIBUTING -->
-## Contributing
-
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE.txt` for more information.
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
+In callback we rebuild all graphs with new filter data. That can take some time if modify a lot of data.
 
 
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
+MARCHADIER Julien - julien.marchadier@edu.esiee.fr
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
+Rebuffey Valentin-  valentin.rebuffey@edu.esiee.fr
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
-<!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
-
-Use this space to list resources you find helpful and would like to give credit to. I've included a few of my favorites to kick things off!
-
-* [Choose an Open Source License](https://choosealicense.com)
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Malven's Flexbox Cheatsheet](https://flexbox.malven.co/)
-* [Malven's Grid Cheatsheet](https://grid.malven.co/)
-* [Img Shields](https://shields.io)
-* [GitHub Pages](https://pages.github.com)
-* [Font Awesome](https://fontawesome.com)
-* [React Icons](https://react-icons.github.io/react-icons/search)
-
-<p align="right">(<a href="#top">back to top</a>)</p>
+Project Link: [https://github.com/juju312000/Series_Py_Dashboarding](https://github.com/juju312000/Series_Py_Dashboarding )
 
 <!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [contributors-shield]: https://img.shields.io/github/contributors/juju312000/Series_Py_Dashboarding.svg?style=for-the-badge
-[contributors-url]: https://github.com/juju312000/Series_Py_Dashboarding/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=for-the-badge
-[forks-url]: https://github.com/othneildrew/Best-README-Template/network/members
-[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=for-the-badge
-[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
-[issues-url]: https://github.com/othneildrew/Best-README-Template/issues
-[license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
-[license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/jmarchadier
-[exemple]: data/example.png
+
+

@@ -169,6 +169,7 @@ def callbacks(app, data):
 
         return new_title, map_score(df[1]), line(df[0]), hist(df[0]), pie(df[2]),watch_time_all,watch_time
 
+
 def map_score(data):
     data = data[["country", "hidden_gem_score", "imdb_vote"]].dropna()
     data = data.groupby(["country"], as_index=False).mean()
