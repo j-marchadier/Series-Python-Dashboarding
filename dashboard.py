@@ -14,7 +14,7 @@ def backend(data):
 
     fig[2] = pie(data[2])
 
-    fig[3] = hist(data[0])
+    fig[3] = hist(data[0],'Movies and Series')
 
     return fig
 
@@ -153,7 +153,7 @@ def callbacks(app, data):
          Input(component_id='watch_time',component_property='value')]
     )
     def update_series_or_movies_values(movieorserie, best_score, selectedData,watch_time_all,watch_time):
-        new_title = "Dashboard of " + str(movieorserie) + " in time"
+        new_title = "Dashboard of " + str(movieorserie) + " through time"
         df = data
         # df[0] == with ou country and genre
         # df[1] == country
@@ -167,7 +167,7 @@ def callbacks(app, data):
 
         df = crossfilter(selectedData, df)
 
-        return new_title, map_score(df[1]), line(df[0]), hist(df[0]), pie(df[2]),watch_time_all,watch_time
+        return new_title, map_score(df[1]), line(df[0]), hist(df[0],str(movieorserie)), pie(df[2]),watch_time_all,watch_time
 
 
 def map_score(data):
@@ -179,7 +179,8 @@ def map_score(data):
                          hover_name="country",
                          size="imdb_vote",
                          locationmode="country names",
-                         projection="natural earth", )
+                         projection="natural earth",
+                         title='Map of Hidden gem score in the word')
 
     map.update_layout({'plot_bgcolor': 'rgba(0, 0, 0, 0)', 'paper_bgcolor': 'rgba(0, 0, 0, 0)'})
 
@@ -188,15 +189,18 @@ def map_score(data):
 
 def line(data):
     data = data[["release_year", "box_office"]].dropna()
+    #print(data[data["release_year"]== 1940])
     data["release_year"] = data["release_year"].dropna().astype('int')
     data = data.groupby(["release_year"], as_index=False).sum()
 
     data = data.sort_values(by=["release_year"])
 
+
+
     line = px.area(data,
                    x="release_year",
                    y="box_office",
-                   title='Box office in years')
+                   title='Box office through time')
 
     line.update_layout({'plot_bgcolor': 'rgba(0, 0, 0, 0)', 'paper_bgcolor': 'rgba(0, 0, 0, 0)'})
 
@@ -212,7 +216,7 @@ def pie(data):
     data["genre"] = data.index
     data = pd.DataFrame(data.reset_index(drop=True))
 
-    pie = px.pie(data, names="genre", values='count', hole = 0.5)
+    pie = px.pie(data, names="genre", values='count',title='Domination of genres', hole = 0.5)
 
     pie.update_traces(textposition='inside')
 
@@ -221,10 +225,10 @@ def pie(data):
     return pie
 
 
-def hist(data):
+def hist(data,movieorserie):
     data = data[["title", "imdb_vote", "series_or_movies"]].dropna()
 
-    hist = px.histogram(data, "imdb_vote", nbins=30, range_x=[0, 1000000], color="series_or_movies")
+    hist = px.histogram(data, "imdb_vote", nbins=30, range_x=[0, 1000000],title=f'Count of IMBD votes according to {movieorserie} ', color="series_or_movies")
 
     return hist
 

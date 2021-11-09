@@ -36,7 +36,6 @@ def read_csv():
                               'summary', "imdb_vote",
                               "poster"],
                      dtype={"genre": str, "series_or_movies": "str"},
-                     parse_dates=["release_date", "netflix_date"]
                      )
     print("Read .csv done.")
     return df
@@ -51,8 +50,7 @@ def clean_dataframe(data):
     data["box_office"] = data["box_office"].dropna().astype('int')
 
     # Get only the year value in date
-    data["release_date"] = data["release_date"].dt.year.dropna().astype('int32')
-    data["netflix_date"] = data["netflix_date"].dt.year.dropna().astype('int32')
+    data["release_date"] = data["release_date"].dropna().map(lambda row: row[-4:]).dropna()
     data.rename(columns={"release_date": "release_year", "netflix_date": "netflix_year"}, inplace=True)
 
     # Modify col

@@ -253,7 +253,33 @@ Callback function allow dashboard to be interactive.
 We place in Input all filter and also possible cross filtering.
 In Output there are all features who need to be modify : graphs, title...
 
-In callback we rebuild all graphs with new filter data. That can take some time if modify a lot of data.
+Thanks to functions [movies_or_series_f](), [best_score_f](), [watch_time_f](), [crossfilter]() 
+we can return filtering data sets.
+
+After we rebuild all graphs with new data. That can take some time if modify a lot of data.
+
+```sh
+  map_score(df[1]), line(df[0]), hist(df[0]), pie(df[2])
+  ```
+
+<!-- ANALYSIS REPORT -->
+## Analysis Report
+
+We can show several things according to the user's desire thanks to our filters.
+For example :
+* Thanks to the graph representing the evolution of the world box office we can see that the curve follows an increasing trend for the movies which isn't the case for the series.
+
+* Whatever the filter applied, we can see that the 2 dominant genres are Drama and Comedy (for both series and movies).
+
+* We want to observe in which region are the best productions. In order to have our information we look at the map with the best 30 score filter.
+  We can see that in general, North America and Europe concentrate the most high rated movies.
+  The above examples show only a small part of what can be represented with this type of dashboard. It's up to you to draw the one you like.
+
+Warning:
+Applying too many filters can cause errors due to lack of data.
+
+Translated with www.DeepL.com/Translator (free version)
+
 
 
 <!-- CONTACT -->
@@ -261,7 +287,7 @@ In callback we rebuild all graphs with new filter data. That can take some time 
 
 MARCHADIER Julien - julien.marchadier@edu.esiee.fr
 
-Rebuffey Valentin-  valentin.rebuffey@edu.esiee.fr
+Rebuffey Valentin - valentin.rebuffey@edu.esiee.fr
 
 Project Link: [https://github.com/juju312000/Series_Py_Dashboarding](https://github.com/juju312000/Series_Py_Dashboarding )
 
