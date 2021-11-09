@@ -278,10 +278,6 @@ For example :
 Warning:
 Applying too many filters can cause errors due to lack of data.
 
-Translated with www.DeepL.com/Translator (free version)
-
-
-
 <!-- CONTACT -->
 ## Contact
 
