@@ -140,6 +140,7 @@ If no error appear, you can run the project by execute the command follow :
  ```sh
   python main.py
   ```
+Dashboard is present on url : http://127.0.0.1:2734/
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
