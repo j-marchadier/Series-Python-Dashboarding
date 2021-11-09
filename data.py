@@ -11,9 +11,9 @@ def download_data_set():
     kaggle_data = {"username": "julienmarchadier", "key": "02de99c2fe1cf5aca1b01c1294e880dd"}
     os.environ['KAGGLE_USERNAME'] = kaggle_data["username"]
     os.environ['KAGGLE_KEY'] = kaggle_data["key"]
-    #import kaggle
+    import kaggle
     # https://www.kaggle.com/ashishgup/netflix-rotten-tomatoes-metacritic-imdb
-   # kaggle.api.dataset_download_files('ashishgup/netflix-rotten-tomatoes-metacritic-imdb', path='./data/', unzip=True)
+    kaggle.api.dataset_download_files('ashishgup/netflix-rotten-tomatoes-metacritic-imdb', path='./data/', unzip=True)
     if os.path.exists("data/netflix-rotten-tomatoes-metacritic-imdb.zip"):
         os.remove("data/netflix-rotten-tomatoes-metacritic-imdb.zip")
 
